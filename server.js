@@ -1,14 +1,15 @@
-// server
+// app server 
 const express = require("express")
 const app = express()
 app.listen(9091, () => console.log("app running..."))
 
-// graphql
+// graphql init
 const userData = require("./dbuser.json")
 const graphql = require("graphql")
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = graphql
 const { graphqlHTTP } = require("express-graphql")
 
+// entity
 const UserType = new GraphQLObjectType({
     name: "User",
     fields: () => ({
@@ -20,6 +21,7 @@ const UserType = new GraphQLObjectType({
     })
 })
 
+// get data
 const RootQuery = new GraphQLObjectType({
     name: "RootQueryType",
     fields: {
@@ -27,6 +29,7 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(UserType),
             args: {id: {type: GraphQLInt}},
             resolve(parent, args) {
+                // connect to db
                 return userData
             }
         },
@@ -34,6 +37,7 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(UserType),
             args: {id: {type: GraphQLInt}},
             resolve(parent, args) {
+                // connect to db
                 const user = userData.find(data => data.id === args["id"])
                 return [user]
             }
@@ -41,6 +45,7 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+// insert data
 const Mutation = new GraphQLObjectType({
     name: "Mutation",
     fields: {
@@ -53,6 +58,7 @@ const Mutation = new GraphQLObjectType({
                 password: {type: GraphQLString},
             },
             resolve(parent, args) {
+                // connect to db
                 userData.push({
                     id: userData.length + 1,
                     firstName: args.firstName,
@@ -66,6 +72,7 @@ const Mutation = new GraphQLObjectType({
     }
 })
 
+// repository
 const schema = new GraphQLSchema({
     query: RootQuery, 
     mutation: Mutation
